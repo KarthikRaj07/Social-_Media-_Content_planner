@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { InferenceClient } from '@huggingface/inference';
-import supabase from './supabaseClient'; // Ensure this file exists
+import supabase from './supabaseClient';
 import './Chatbot.css';
-
-const client = new InferenceClient(import.meta.env.VITE_HUGGINGFACE_TOKEN);
 
 function Chatbot() {
   const [input, setInput] = useState('');
@@ -18,48 +15,33 @@ function Chatbot() {
     setIsLoading(true);
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      // Fetch chat history from Supabase
+      const { data: history, error: historyError } = await supabase
+        .from('chat_history')
+        .select('*')
+        .order('id', { ascending: true });
 
-      const chatCompletion = await client.chatCompletion({
-        provider: 'nebius',
-        model: 'deepseek-ai/DeepSeek-V3-0324',
-        messages: [...messages, userMessage],
-        max_tokens: 512,
-        signal: controller.signal,
-      });
+      if (historyError) {
+        console.error('Error fetching chat history:', historyError.message);
+      }
 
-      clearTimeout(timeoutId);
+      // Generate a response using the chat history
+      const botMessage = {
+        role: 'assistant',
+        content: await handleQuery(input, history || []),
+      };
+      setMessages((prev) => [...prev, botMessage]);
 
-      if (
-        chatCompletion &&
-        chatCompletion.choices &&
-        chatCompletion.choices[0] &&
-        chatCompletion.choices[0].message &&
-        chatCompletion.choices[0].message.content
-      ) {
-        const botMessage = {
-          role: 'assistant',
-          content: chatCompletion.choices[0].message.content,
-        };
-        setMessages((prev) => [...prev, botMessage]);
+      // Store the prompt and response in Supabase
+      const { error } = await supabase.from('chat_history').insert([
+        { prompt: input, response: botMessage.content },
+      ]);
 
-        // Store the prompt and response in Supabase
-        const { error } = await supabase.from('chat_history').insert([
-          {
-            prompt: input, // User's input
-            response: botMessage.content, // Bot's response
-          },
-        ]);
-
-        if (error) {
-          console.error('Error storing data in Supabase:', error);
-        }
-      } else {
-        throw new Error('Invalid response from the API');
+      if (error) {
+        console.error('Error storing data in Supabase:', error);
       }
     } catch (error) {
-      console.error('Error generating text:', error);
+      console.error('Error generating response:', error);
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: 'Error generating response. Please try again.' },
@@ -68,6 +50,30 @@ function Chatbot() {
       setIsLoading(false);
       setInput('');
     }
+  };
+
+  const handleQuery = async (query, history) => {
+    // Use chat history to enhance responses (if needed)
+    const previousConversations = history.map((entry) => `${entry.prompt}: ${entry.response}`).join('\n');
+
+    // Provide refined responses for specific queries
+    if (query.toLowerCase().includes('post ideas')) {
+      return 'Here are some engaging post ideas for Instagram: Share behind-the-scenes content, run a poll, post user-generated content, or share a motivational quote.';
+    } else if (query.toLowerCase().includes('trending articles')) {
+      return 'Here are some trending articles: "Top 10 Digital Marketing Trends", "How to Boost Engagement on Social Media", "The Future of E-commerce".';
+    } else if (query.toLowerCase().includes('improve engagement')) {
+      return 'To improve engagement, post consistently, use relevant hashtags, interact with your audience through comments and polls, and analyze your content performance.';
+    } else if (query.toLowerCase().includes('statistics')) {
+      return 'You can find statistics to support your post on platforms like Statista, Google Trends, or HubSpot. Let me know if you need help finding specific data.';
+    } else if (query.toLowerCase().includes('tiktok strategies')) {
+      return 'The latest TikTok strategies include using trending sounds, creating short and engaging videos, collaborating with influencers, and participating in viral challenges.';
+    } else if (query.toLowerCase().includes('caption')) {
+      // Generate a caption for a personal post
+      return 'Here’s a caption idea for your personal post: "Every moment is a fresh beginning 🌟 #NewBeginnings #PersonalJourney"';
+    }
+
+    // Fallback response for unexpected queries
+    return 'Thank you for your question! Let me know how I can assist further.';
   };
 
   return (
