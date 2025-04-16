@@ -33,3 +33,50 @@
         font-size: 16px;
     }
 }
+
+.about-project {
+    margin-top: 30px;
+    text-align: left;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.about-project h2 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.about-project p {
+    color: #555;
+    font-size: 16px;
+}
+
+.trending-content {
+    margin-top: 30px;
+    text-align: left;
+}
+
+.trending-content h2 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.trending-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.trending-content ul li {
+    margin-bottom: 10px;
+}
+
+.trending-content ul li a {
+    text-decoration: none;
+    color: #0056b3;
+}
+
+.trending-content ul li a:hover {
+    text-decoration: underline;
+}
