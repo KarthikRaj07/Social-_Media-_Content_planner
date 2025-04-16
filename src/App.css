@@ -3,6 +3,10 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  box-sizing: border-box;
+  /* Include padding and border in width */
+  padding-top: 70px;
+  /* Adjust padding to prevent overlap with fixed nav */
 }
 
 .logo {
@@ -11,9 +15,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +28,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -39,4 +46,89 @@
 
 .read-the-docs {
   color: #888;
+}
+
+nav {
+  background-color: #007bff;
+  padding: 10px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+nav ul li a:hover {
+  text-decoration: underline;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: #007bff;
+  position: fixed;
+  /* Keep the navigation bar fixed at the top */
+  top: 0;
+  /* Position it at the very top */
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  /* Ensure it stays above other elements */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Add a subtle shadow for better visibility */
+}
+
+.nav-buttons a {
+  text-decoration: none;
+  color: white;
+  background-color: #0056b3;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.nav-buttons a:hover {
+  background-color: #003d80;
+}
+
+@media (max-width: 1024px) {
+  #root {
+    padding: 1rem;
+    padding-top: 70px;
+    /* Ensure consistent spacing for smaller screens */
+  }
+
+  .nav-buttons a {
+    font-size: 14px;
+    /* Adjust font size for navigation buttons */
+    padding: 8px 16px;
+    /* Adjust padding */
+  }
+
+  .card {
+    padding: 1em;
+    /* Reduce card padding */
+  }
 }
