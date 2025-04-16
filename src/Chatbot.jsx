@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { InferenceClient } from '@huggingface/inference';
-const HF_TOKEN = import.meta.env.VITE_HUGGINGFACE_TOKEN;
-const client = new InferenceClient(HF_TOKEN);
+import { createClient } from '@supabase/supabase-js';
+
+const client = new InferenceClient(import.meta.env.VITE_HUGGINGFACE_TOKEN);
+const supabase = createClient(
+  import.meta.env.SUPABASE_URL,
+  import.meta.env.SUPABASE_API
+);
 
 function Chatbot() {
   const [input, setInput] = useState('');
@@ -20,10 +25,20 @@ function Chatbot() {
         ],
         max_tokens: 512,
       });
-      setResponse(chatCompletion.choices[0].message.content);
+      const generatedResponse = chatCompletion.choices[0].message.content;
+      setResponse(generatedResponse);
+
+      // Store the prompt and response in Supabase
+      const { error } = await supabase.from('chat_history').insert([
+        { prompt: input, response: generatedResponse },
+      ]);
+
+      if (error) {
+        console.error('Error storing data in Supabase:', error);
+      }
     } catch (error) {
       console.error('Error generating text:', error);
-      setResponse('Error generating response.');
+      setResponse('Error generating response. Please try again.');
     }
   };
 
